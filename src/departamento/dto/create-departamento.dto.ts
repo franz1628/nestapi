@@ -13,6 +13,6 @@ export class CreateDepartamentoDto {
   @IsNotEmpty()
   @IsInt()
   @Min(0)
-  @Max(1) // Asumiendo que el estado puede ser 0 (inactivo) o 1 (activo)
+  @Max(1)
   estado: number;
 }

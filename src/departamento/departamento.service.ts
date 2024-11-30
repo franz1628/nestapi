@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Departamento } from './entities/departamento.entity';
@@ -9,35 +9,41 @@ import { UpdateDepartamentoDto } from './dto/update-departamento.dto';
 export class DepartamentoService {
   constructor(
     @InjectRepository(Departamento)
-    private readonly departamentoRepository: Repository<Departamento>,
+    private readonly repository: Repository<Departamento>,
   ) {}
 
-  async create(createDepartamentoDto: CreateDepartamentoDto): Promise<Departamento> {
-    const departamento = this.departamentoRepository.create(createDepartamentoDto);
-    return await this.departamentoRepository.save(departamento);
+  async create(create: CreateDepartamentoDto): Promise<Departamento> {
+    const busdepar = await this.repository.findOne({where : {descripcion:create.descripcion}})
+    
+    if(busdepar){
+      throw new ConflictException('El departamento ya existe');
+    }
+
+    const model = this.repository.create(create);
+    return await this.repository.save(model);
   }
 
   async findAll(): Promise<Departamento[]> {
-    return await this.departamentoRepository.find();
+    return await this.repository.find({relations:["Pais"]});
   }
 
   async findOne(id: number): Promise<Departamento> {
-    const departamento = await this.departamentoRepository.findOne({ where: { id } });
-    if (!departamento) {
+    const model = await this.repository.findOne({ where: { id } });
+    if (!model) {
       throw new NotFoundException(`Departamento con ID ${id} no encontrado.`);
     }
-    return departamento;
+    return model;
   }
 
-  async update(id: number, updateDepartamentoDto: UpdateDepartamentoDto): Promise<Departamento> {
-    const departamento = await this.findOne(id);
-    Object.assign(departamento, updateDepartamentoDto);
-    return await this.departamentoRepository.save(departamento);
+  async update(id: number, update: UpdateDepartamentoDto): Promise<Departamento> {
+    const model = await this.findOne(id);
+    Object.assign(model, update);
+    return await this.repository.save(model);
   }
 
-  async remove(id: number): Promise<{ message: string }> {
-    const departamento = await this.findOne(id);
-    await this.departamentoRepository.remove(departamento);
-    return { message: `Departamento con ID ${id} eliminado con éxito.` };
+  async remove(id: number): Promise<Departamento> {
+    const model = await this.findOne(id);
+    Object.assign(model, {...model,estado:0});
+    return await this.repository.save(model);
   }
 }

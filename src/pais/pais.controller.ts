@@ -1,26 +1,16 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Param,
-  Body,
-  Res,
-  HttpStatus,
-  ConflictException,
-} from '@nestjs/common';
-import { CreateDepartamentoDto } from './dto/create-departamento.dto';
-import { UpdateDepartamentoDto } from './dto/update-departamento.dto';
-import { DepartamentoService } from './departamento.service';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, ConflictException, Put } from '@nestjs/common';
+import { PaisService } from './pais.service';
+import { CreatePaisDto } from './dto/create-pais.dto';
 import { Response } from 'express';
+import { UpdatePaisDto } from './dto/update-pais.dto';
 
-@Controller('departamento')
-export class DepartamentoController {
-  constructor(private readonly service: DepartamentoService) {}
+
+@Controller('pais')
+export class PaisController {
+  constructor(private readonly service: PaisService) {}
 
   @Post()
-  async create(@Body() create: CreateDepartamentoDto, @Res() res: Response): Promise<void> {
+  async create(@Body() create: CreatePaisDto, @Res() res: Response): Promise<void> {
     try {
       const model = await this.service.create(create);
       res.status(HttpStatus.CREATED).json(model);
@@ -53,7 +43,7 @@ export class DepartamentoController {
   @Put(':id')
   update(
     @Param('id') id: number,
-    @Body() update: UpdateDepartamentoDto,
+    @Body() update: UpdatePaisDto,
   ) {
     return this.service.update(id, update);
   }
