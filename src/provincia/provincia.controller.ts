@@ -6,8 +6,10 @@ import { Response } from 'express';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Role } from 'src/auth/roles.enum';
 
 @Controller('provincia')
+@UseGuards(AuthGuard)
 export class ProvinciaController {
   constructor(private readonly service: ProvinciaService) {}
 
@@ -26,7 +28,8 @@ export class ProvinciaController {
   }
   
   @Get()
-  @UseGuards(AuthGuard)
+  @UseGuards(RolesGuard)
+  @Roles(Role.User, Role.Admin) 
   async findAll(@Res() res: Response): Promise<void> {
     const models = await this.service.findAll();
     if (models.length === 0) {
