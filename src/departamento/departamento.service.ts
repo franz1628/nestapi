@@ -20,7 +20,8 @@ export class DepartamentoService {
     }
 
     const model = this.repository.create(create);
-    return await this.repository.save(model);
+    const {id,...newModel} = model
+    return await this.repository.save(newModel);
   }
 
   async findAll(): Promise<Departamento[]> {

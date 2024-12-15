@@ -1,5 +1,6 @@
+import { Exclude } from "class-transformer";
 import { Departamento } from "src/departamento/entities/departamento.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('provincia')
 export class Provincia {
@@ -12,8 +13,14 @@ export class Provincia {
     @Column({ nullable: true })
     idDepartamento: number;
   
-    @Column()
-    estado: number;
+    @CreateDateColumn({ type: 'datetime' }) 
+    created_at: Date; 
+    
+    @UpdateDateColumn({ type: 'datetime' }) 
+    updated_at: Date; 
+    
+    @Column({ type: 'int', default: 1 }) 
+    status: number;
 
     @ManyToOne(() => Departamento, departamento => departamento.provincias) 
     @JoinColumn({ name: 'idDepartamento' }) 

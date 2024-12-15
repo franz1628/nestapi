@@ -13,6 +13,9 @@ import { Provincia } from './provincia/entities/provincia.entity';
 import { PaisModule } from './pais/pais.module';
 import { Pais } from './pais/entities/pais.entity';
 import { AuthModule } from './auth/auth.module';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filters';
 
 @Module({
 
@@ -20,11 +23,11 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
     TypeOrmModule.forRoot({
       type: 'mssql',
-      host: 'localhost',
+      host: '25.6.206.8',
       port: 1433,
       username: 'sa',
       password: '1234',
-      database: 'ejemplo',
+      database: 'testdamer',
       entities: [User,Pais,Departamento,Provincia], 
       synchronize: true,
       options: {
@@ -40,7 +43,14 @@ import { AuthModule } from './auth/auth.module';
     
   ],
   providers: [
-
+    {
+      provide:APP_INTERCEPTOR,
+      useClass:ResponseInterceptor
+    },
+    {
+      provide:APP_FILTER,
+      useClass:AllExceptionsFilter
+    }
   ],
 })
 export class AppModule {}

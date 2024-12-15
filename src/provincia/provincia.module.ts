@@ -4,10 +4,11 @@ import { ProvinciaController } from './provincia.controller';
 import { Provincia } from './entities/provincia.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { Departamento } from 'src/departamento/entities/departamento.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Provincia]),
+    TypeOrmModule.forFeature([Provincia,Departamento]),
     JwtModule.register({
       global: true,
       secret: '123456',

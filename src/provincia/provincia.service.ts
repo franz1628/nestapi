@@ -4,12 +4,15 @@ import { UpdateProvinciaDto } from './dto/update-provincia.dto';
 import { Provincia } from './entities/provincia.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Departamento } from 'src/departamento/entities/departamento.entity';
 
 @Injectable()
 export class ProvinciaService {
   constructor(
     @InjectRepository(Provincia)
     private readonly repository: Repository<Provincia>,
+    @InjectRepository(Departamento)
+    private readonly repositoryDepartamento: Repository<Departamento>,
   ) {}
 
   async create(create: CreateProvinciaDto): Promise<Provincia> {
@@ -19,7 +22,16 @@ export class ProvinciaService {
       throw new ConflictException('La provincia ya existe');
     }
 
+    const buscaDepar = await this.repositoryDepartamento.findOne({where:{id:create.idDepartamento}});
+
+    if(!buscaDepar){
+      throw new NotFoundException(`Departamento con ID ${create.idDepartamento} no encontrado.`);
+    }
+
     const model = this.repository.create(create);
+    delete model.id
+    delete model.Departamento
+    
     return await this.repository.save(model);
   }
 
