@@ -9,10 +9,4 @@ export class CreateDepartamentoDto {
   @IsNotEmpty()
   @IsInt()
   idPais: number;
-
-  @IsNotEmpty()
-  @IsInt()
-  @Min(0)
-  @Max(1)
-  estado: number;
 }

@@ -5,10 +5,4 @@ export class CreatePaisDto {
     @IsString()
     @Length(3, 255)
     descripcion: string;
-  
-    @IsNotEmpty()
-    @IsInt()
-    @Min(0)
-    @Max(1)
-    estado: number;
 }

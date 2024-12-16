@@ -29,14 +29,12 @@ export class ProvinciaService {
     }
 
     const model = this.repository.create(create);
-    delete model.id
-    delete model.Departamento
     
     return await this.repository.save(model);
   }
 
   async findAll(): Promise<Provincia[]> {
-    return await this.repository.find({relations:["Departamento"]});
+    return await this.repository.find({where: { status:1 } ,relations:["Departamento"]});
   }
 
   async findOne(id: number): Promise<Provincia> {
@@ -49,13 +47,21 @@ export class ProvinciaService {
 
   async update(id: number, update: UpdateProvinciaDto): Promise<Provincia> {
     const model = await this.findOne(id);
+
+    if(model.descripcion != update.descripcion){
+      const newModel = await this.repository.findOne({ where: { descripcion:update.descripcion } });
+      if(newModel){
+        throw new ConflictException('La Provincia ya existe');
+      }
+    }
+
     Object.assign(model, update);
     return await this.repository.save(model);
   }
 
   async remove(id: number): Promise<Provincia> {
     const model = await this.findOne(id);
-    Object.assign(model, {...model,estado:0});
+    Object.assign(model, {...model,status:0});
     return await this.repository.save(model);
   }
 }
