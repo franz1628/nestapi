@@ -34,7 +34,7 @@ export class DepartamentoService {
   }
 
   async findAll(): Promise<Departamento[]> {
-    return await this.repository.find({where: { status:1 } ,relations:["Pais"]});
+    return await this.repository.find({relations:["Pais"]});
   }
 
   async findOne(id: number): Promise<Departamento> {

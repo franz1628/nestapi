@@ -1,55 +1,45 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, ConflictException, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, Put, ConflictException, UseGuards, NotFoundException, HttpException } from '@nestjs/common';
+import { Response } from 'express';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { Role } from 'src/auth/roles.enum';
+import { ResponseDto } from 'src/common/dtos/responseDto';
+import { ErrorResponse } from 'src/common/dtos/errorResponse';
 import { PaisService } from './pais.service';
 import { CreatePaisDto } from './dto/create-pais.dto';
-import { Response } from 'express';
+import { Pais } from './entities/pais.entity';
 import { UpdatePaisDto } from './dto/update-pais.dto';
 
-
 @Controller('pais')
+//@UseGuards(AuthGuard)
 export class PaisController {
   constructor(private readonly service: PaisService) {}
 
   @Post()
-  async create(@Body() create: CreatePaisDto, @Res() res: Response): Promise<void> {
-    try {
-      const model = await this.service.create(create);
-      res.status(HttpStatus.CREATED).json(model);
-    } catch (error) {
-      if (error instanceof ConflictException) {
-        res.status(HttpStatus.CONFLICT).json({ message: error.message });
-      } else {
-        res
-          .status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .json({ message: 'Internal server error' });
-      }
-    }
+  async create(@Body() create: CreatePaisDto): Promise<Pais> {
+    return await this.service.create(create);
   }
-
+  
   @Get()
-  async findAll(@Res() res: Response): Promise<void> {
-    const models = await this.service.findAll();
-    if (models.length === 0) {
-      res.status(HttpStatus.NO_CONTENT).send();
-    } else {
-      res.status(HttpStatus.OK).json(models);
-    }
+  //@UseGuards(RolesGuard)
+  //@Roles(Role.User, Role.Admin) 
+  async findAll(): Promise<Pais[]> {
+    return await this.service.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.service.findOne(id);
+  async findOne(@Param('id') id: number):Promise<Pais> {
+    return await this.service.findOne(id);
   }
 
   @Put(':id')
-  update(
-    @Param('id') id: number,
-    @Body() update: UpdatePaisDto,
-  ) {
-    return this.service.update(id, update);
+  async update(@Param('id') id: number, @Body() update: UpdatePaisDto):Promise<Pais> {
+    return await this.service.update(id, update);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.service.remove(id);
+  async remove(@Param('id') id: number):Promise<Pais> {
+    return await this.service.remove(id);
   }
 }

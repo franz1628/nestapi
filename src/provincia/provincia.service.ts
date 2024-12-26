@@ -34,7 +34,7 @@ export class ProvinciaService {
   }
 
   async findAll(): Promise<Provincia[]> {
-    return await this.repository.find({where: { status:1 } ,relations:["Departamento"]});
+    return await this.repository.find({relations:["Departamento"]});
   }
 
   async findOne(id: number): Promise<Provincia> {
