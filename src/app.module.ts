@@ -5,7 +5,7 @@ import { HelloController } from './hello/hello.controller';
 import { HelloService } from './hello/hello.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './users/users.entity';
+import { Users } from './users/users.entity';
 import { DepartamentoModule } from './departamento/departamento.module';
 import { Departamento } from './departamento/entities/departamento.entity';
 import { ProvinciaModule } from './provincia/provincia.module';
@@ -28,7 +28,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filters';
       username: 'sa',
       password: '1234',
       database: 'testdamer',
-      entities: [User,Pais,Departamento,Provincia], 
+      entities: [Users,Pais,Departamento,Provincia], 
       synchronize: true,
       options: {
         encrypt: false, 

@@ -1,23 +1,41 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import cookieParser from 'cookie-parser';
+import { Users } from 'src/users/users.entity';
+import { UsersService } from 'src/users/users.service';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private jwtService: JwtService
-  ) {}
+    private jwtService: JwtService,
+    @InjectRepository(Users)
+    private readonly repositoryUsers: Repository<Users>,
+  ) { }
 
   async signIn(
-    username: string,
-    pass: string,
-  ): Promise<{ access_token: string }> {
-    const user = {username:'test',password:'test123',userId:1,roles:'admin'}
-    if (user?.password !== pass) {
+    email: string,
+    password: string,
+  ): Promise<{ token: string,usuario:Users }> {
+    
+    const usuario = await this.repositoryUsers.findOne({
+        where : {
+          email : email,
+          password:password
+        }
+      })
+
+    if (!usuario) {
       throw new UnauthorizedException();
     }
-    const payload = { sub: user.userId, username: user.username,roles: user.roles };
+
+    const payload = { sub: usuario.id, username: usuario.nombres, roles: 'admin' };
+
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
-    };
+      token: await this.jwtService.signAsync(payload),
+      usuario
+    }; 
   }
 }

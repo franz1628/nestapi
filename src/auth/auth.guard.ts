@@ -9,9 +9,10 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = request.cookies['authToken'];
+
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('No estás autenticado');
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
@@ -21,7 +22,7 @@ export class AuthGuard implements CanActivate {
       request['user'] = payload;
       
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Token inválido o expirado');
     }
     return true;
   }
