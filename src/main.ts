@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule,{
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.use(passport.initialize());
   app.use(cookieParser());
 

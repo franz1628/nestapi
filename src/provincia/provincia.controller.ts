@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, Put, ConflictException, UseGuards, NotFoundException, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus, Put, ConflictException, UseGuards, NotFoundException, HttpException, Query } from '@nestjs/common';
 import { ProvinciaService } from './provincia.service';
 import { CreateProvinciaDto } from './dto/create-provincia.dto';
 import { UpdateProvinciaDto } from './dto/update-provincia.dto';
@@ -10,11 +10,17 @@ import { Role } from 'src/auth/roles.enum';
 import { ResponseDto } from 'src/common/dtos/responseDto';
 import { Provincia } from './entities/provincia.entity';
 import { ErrorResponse } from 'src/common/dtos/errorResponse';
+import { PaginationDto } from 'src/common/dtos/paginationDto';
 
 @Controller('provincia')
 //@UseGuards(AuthGuard)
 export class ProvinciaController {
   constructor(private readonly service: ProvinciaService) {}
+
+  @Get("findAllPaginado")
+  async findAllPaginado(@Query() paginationDto :PaginationDto){
+    return this.service.findPaginationAll(paginationDto);
+  }
 
   @Post()
   async create(@Body() create: CreateProvinciaDto): Promise<Provincia> {

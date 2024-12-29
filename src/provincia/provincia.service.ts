@@ -5,6 +5,7 @@ import { Provincia } from './entities/provincia.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Departamento } from 'src/departamento/entities/departamento.entity';
+import { PaginationDto } from 'src/common/dtos/paginationDto';
 
 @Injectable()
 export class ProvinciaService {
@@ -33,7 +34,27 @@ export class ProvinciaService {
     return await this.repository.save(model);
   }
 
-  async findAll(): Promise<Provincia[]> {
+  async findPaginationAll(paginationDto: PaginationDto){
+    const { page, limit } = paginationDto;
+    const skip = (page - 1) * limit;
+    
+    const [data, total] = await this.repository.findAndCount({
+      skip:skip,
+      take: limit,
+      relations:["Departamento"]
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findAll(){
+
     return await this.repository.find({relations:["Departamento"]});
   }
 
