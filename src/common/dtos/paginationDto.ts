@@ -13,4 +13,6 @@ export class PaginationDto {
   @IsInt()
   @Min(1)
   limit: number = 5; // Límite por defecto
+
+  buscar:string
 }

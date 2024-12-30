@@ -3,7 +3,7 @@ import { CreateProvinciaDto } from './dto/create-provincia.dto';
 import { UpdateProvinciaDto } from './dto/update-provincia.dto';
 import { Provincia } from './entities/provincia.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import { Departamento } from 'src/departamento/entities/departamento.entity';
 import { PaginationDto } from 'src/common/dtos/paginationDto';
 
@@ -35,12 +35,19 @@ export class ProvinciaService {
   }
 
   async findPaginationAll(paginationDto: PaginationDto){
-    const { page, limit } = paginationDto;
+    const { page, limit, buscar } = paginationDto;
     const skip = (page - 1) * limit;
     
+    const whereCondition = buscar
+    ? {
+        descripcion: Raw((alias) => `LOWER(${alias}) LIKE :value`, { value: `%${buscar.toLowerCase()}%` }),
+      }
+    : {};
+
     const [data, total] = await this.repository.findAndCount({
       skip:skip,
       take: limit,
+      where: whereCondition,
       relations:["Departamento"]
     });
 
