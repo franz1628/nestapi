@@ -11,6 +11,7 @@ import { ResponseDto } from 'src/common/dtos/responseDto';
 import { Provincia } from './entities/provincia.entity';
 import { ErrorResponse } from 'src/common/dtos/errorResponse';
 import { PaginationDto } from 'src/common/dtos/paginationDto';
+import { ProvinciaDto } from './dto/provincia.dto';
 
 @Controller('provincia')
 //@UseGuards(AuthGuard)
@@ -23,29 +24,29 @@ export class ProvinciaController {
   }
 
   @Post()
-  async create(@Body() create: CreateProvinciaDto): Promise<Provincia> {
+  async create(@Body() create: CreateProvinciaDto): Promise<ProvinciaDto> {
     return await this.service.create(create);
   }
   
   @Get()
   //@UseGuards(RolesGuard)
   //@Roles(Role.User, Role.Admin) 
-  async findAll(): Promise<Provincia[]> {
+  async findAll(): Promise<ProvinciaDto[]> {
     return await this.service.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number):Promise<Provincia> {
+  async findOne(@Param('id') id: number):Promise<ProvinciaDto> {
     return await this.service.findOne(id);
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() update: UpdateProvinciaDto):Promise<Provincia> {
+  async update(@Param('id') id: number, @Body() update: UpdateProvinciaDto):Promise<ProvinciaDto> {
     return await this.service.update(id, update);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number):Promise<Provincia> {
+  async remove(@Param('id') id: number):Promise<ProvinciaDto> {
     return await this.service.remove(id);
   }
 }

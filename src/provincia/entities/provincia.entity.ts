@@ -1,4 +1,3 @@
-import { Exclude } from "class-transformer";
 import { Departamento } from "src/departamento/entities/departamento.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
@@ -7,10 +6,10 @@ export class Provincia {
     @PrimaryGeneratedColumn()
     id: number;
   
-    @Column({ length: 255,nullable: true })
+    @Column({ length: 255 })
     descripcion: string;
   
-    @Column({ nullable: true })
+    @Column()
     idDepartamento: number;
   
     @CreateDateColumn({ type: 'datetime' }) 

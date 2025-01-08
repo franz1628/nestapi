@@ -6,6 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, Repository } from 'typeorm';
 import { Departamento } from 'src/departamento/entities/departamento.entity';
 import { PaginationDto } from 'src/common/dtos/paginationDto';
+import { ProvinciaDto } from './dto/provincia.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProvinciaService {
@@ -16,7 +18,7 @@ export class ProvinciaService {
     private readonly repositoryDepartamento: Repository<Departamento>,
   ) {}
 
-  async create(create: CreateProvinciaDto): Promise<Provincia> {
+  async create(create: CreateProvinciaDto): Promise<ProvinciaDto> {
     const busdepar = await this.repository.findOne({where : {descripcion:create.descripcion}})
     
     if(busdepar){
@@ -31,7 +33,7 @@ export class ProvinciaService {
 
     const model = this.repository.create(create);
     
-    return await this.repository.save(model);
+    return await this.repository.save(this.toDto(model));
   }
 
   async findPaginationAll(paginationDto: PaginationDto){
@@ -60,20 +62,20 @@ export class ProvinciaService {
     };
   }
 
-  async findAll(){
-
-    return await this.repository.find({relations:["Departamento"]});
+  async findAll():Promise<ProvinciaDto[]>{
+    const provincias = await this.repository.find({relations:["Departamento"]})
+    return provincias.map(this.toDto);
   }
 
-  async findOne(id: number): Promise<Provincia> {
-    const model = await this.repository.findOne({ where: { id } });
+  async findOne(id: number): Promise<ProvinciaDto> {
+    const model = await this.repository.findOne({ where: { id },relations:["Departamento"] });
     if (!model) {
       throw new NotFoundException(`Provincia con ID ${id} no encontrado.`);
     }
-    return model;
+    return this.toDto(model);
   }
 
-  async update(id: number, update: UpdateProvinciaDto): Promise<Provincia> {
+  async update(id: number, update: UpdateProvinciaDto): Promise<ProvinciaDto> {
     const model = await this.findOne(id);
 
     if(model.descripcion != update.descripcion){
@@ -84,12 +86,19 @@ export class ProvinciaService {
     }
 
     Object.assign(model, update);
-    return await this.repository.save(model);
+    return this.toDto(await this.repository.save(model));
   }
 
-  async remove(id: number): Promise<Provincia> {
+  async remove(id: number): Promise<ProvinciaDto> {
     const model = await this.findOne(id);
     Object.assign(model, {...model,status:0});
-    return await this.repository.save(model);
+    return this.toDto(await this.repository.save(model));
+  }
+
+  private toDto(model: Provincia): ProvinciaDto {
+    return plainToInstance(ProvinciaDto, model, {
+      excludeExtraneousValues: true, // Solo transforma las propiedades definidas en el DTO
+      enableImplicitConversion:true
+    });
   }
 }
