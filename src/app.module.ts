@@ -17,6 +17,7 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filters';
 import { ConfigModule } from '@nestjs/config';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
 
@@ -44,6 +45,7 @@ import { ConfigModule } from '@nestjs/config';
     DepartamentoModule,
     ProvinciaModule,
     PaisModule,
+    UploadModule,
     
   ],
   providers: [
