@@ -16,24 +16,28 @@ import { AuthModule } from './auth/auth.module';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filters';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
 
   imports: [
     AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true, // Hace que las variables estén disponibles en toda la aplicación
+      envFilePath: '.env', // Ruta del archivo de variables de entorno
+    }),
     TypeOrmModule.forRoot({
       type: 'mssql',
-      host: '25.6.206.8',
-      port: 1433,
-      username: 'sa',
-      password: '1234',
-      database: 'testdamer',
-      entities: [Users,Pais,Departamento,Provincia], 
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT, 10),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
+      entities: [Users, Pais, Departamento, Provincia],
       synchronize: true,
       options: {
-        encrypt: false, 
-        trustServerCertificate: true, // Opcional, dependiendo de tu configuración de seguridad 
-  
+        encrypt: process.env.DB_ENCRYPT === 'true',
+        trustServerCertificate: true,
       },
     }),
     UsersModule,
