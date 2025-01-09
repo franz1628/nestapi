@@ -97,7 +97,7 @@ export class ProvinciaService {
 
   private toDto(model: Provincia): ProvinciaDto {
     return plainToInstance(ProvinciaDto, model, {
-      excludeExtraneousValues: true, // Solo transforma las propiedades definidas en el DTO
+      excludeExtraneousValues: true,
       enableImplicitConversion:true
     });
   }
