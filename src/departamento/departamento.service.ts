@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { Pais } from "src/pais/entities/pais.entity";
 import { Departamento } from "./entities/departamento.entity";
-import { Repository } from "typeorm";
 import { CreateDepartamentoDto } from "./dto/create-departamento.dto";
 import { UpdateDepartamentoDto } from "./dto/update-departamento.dto";
 
@@ -10,58 +10,79 @@ import { UpdateDepartamentoDto } from "./dto/update-departamento.dto";
 export class DepartamentoService {
   constructor(
     @InjectRepository(Departamento)
-    private readonly repository: Repository<Departamento>,
+    private readonly departamentoRepository: Repository<Departamento>,
     @InjectRepository(Pais)
-    private readonly repositoryPais: Repository<Pais>,
+    private readonly paisRepository: Repository<Pais>,
   ) {}
 
-  async create(create: CreateDepartamentoDto): Promise<Departamento> {
-    const busdepar = await this.repository.findOne({where : {descripcion:create.descripcion}})
-    
-    if(busdepar){
-      throw new ConflictException('La Departamento ya existe');
+  // Auxiliar para validar la existencia de un País
+  private async validatePais(idPais: number): Promise<Pais> {
+    const pais = await this.paisRepository.findOne({ where: { id: idPais } });
+    if (!pais) {
+      throw new NotFoundException(`País con ID ${idPais} no encontrado.`);
     }
-
-    const buscaDepar = await this.repositoryPais.findOne({where:{id:create.idPais}});
-
-    if(!buscaDepar){
-      throw new NotFoundException(`Pais con ID ${create.idPais} no encontrado.`);
-    }
-
-    const model = this.repository.create(create);
-    
-    return await this.repository.save(model);
+    return pais;
   }
 
+  // Auxiliar para buscar por descripción
+  private async findByDescripcion(descripcion: string): Promise<Departamento | null> {
+    return this.departamentoRepository.findOne({ where: { descripcion } });
+  }
+
+  // Crear un nuevo Departamento
+  async create(createDto: CreateDepartamentoDto): Promise<Departamento> {
+    // Verificar si ya existe un Departamento con la misma descripción
+    const existingDepartamento = await this.findByDescripcion(createDto.descripcion);
+    if (existingDepartamento) {
+      throw new ConflictException('El Departamento ya existe.');
+    }
+
+    // Validar si el País existe
+    await this.validatePais(createDto.idPais);
+
+    // Crear y guardar el nuevo Departamento
+    const departamento = this.departamentoRepository.create(createDto);
+    return await this.departamentoRepository.save(departamento);
+  }
+
+  // Obtener todos los Departamentos
   async findAll(): Promise<Departamento[]> {
-    return await this.repository.find({relations:["Pais"]});
+    return await this.departamentoRepository.find({ relations: ["Pais"] });
   }
 
+  // Buscar un Departamento por ID
   async findOne(id: number): Promise<Departamento> {
-    const model = await this.repository.findOne({ where: { id } });
-    if (!model) {
+    const departamento = await this.departamentoRepository.findOne({ where: { id } });
+    if (!departamento) {
       throw new NotFoundException(`Departamento con ID ${id} no encontrado.`);
     }
-    return model;
+    return departamento;
   }
 
-  async update(id: number, update: UpdateDepartamentoDto): Promise<Departamento> {
-    const model = await this.findOne(id);
+  // Actualizar un Departamento
+  async update(id: number, updateDto: UpdateDepartamentoDto): Promise<Departamento> {
+    // Buscar el Departamento por ID
+    const departamento = await this.findOne(id);
 
-    if(model.descripcion != update.descripcion){
-      const newModel = await this.repository.findOne({ where: { descripcion:update.descripcion } });
-      if(newModel){
-        throw new ConflictException('El Departamento ya existe');
+    // Verificar si la descripción nueva ya existe en otro Departamento
+    if (updateDto.descripcion && departamento.descripcion !== updateDto.descripcion) {
+      const existingDepartamento = await this.findByDescripcion(updateDto.descripcion);
+      if (existingDepartamento) {
+        throw new ConflictException('Otro Departamento ya tiene esta descripción.');
       }
     }
 
-    Object.assign(model, update);
-    return await this.repository.save(model);
+    // Actualizar y guardar el Departamento
+    Object.assign(departamento, updateDto);
+    return await this.departamentoRepository.save(departamento);
   }
 
+  // Eliminar (lógicamente) un Departamento
   async remove(id: number): Promise<Departamento> {
-    const model = await this.findOne(id);
-    Object.assign(model, {...model,status:0});
-    return await this.repository.save(model);
+    const departamento = await this.findOne(id);
+
+    // Actualizar el estado a inactivo
+    departamento.status = 0;
+    return await this.departamentoRepository.save(departamento);
   }
 }
